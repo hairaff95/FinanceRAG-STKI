@@ -111,7 +111,13 @@ export function rerankFinancialCandidates(
     const f5 = item.numericDensity;
     const f6 = item.priorityBoost;
 
-    const total = w1 * f1 + w2 * f2 + w3 * f3 + w4 * f4 + w5 * f5 + w6 * f6;
+    let total = w1 * f1 + w2 * f2 + w3 * f3 + w4 * f4 + w5 * f5 + w6 * f6;
+
+    // Guardrail: Jika tidak ada satu pun kata kueri yang muncul di teks dan BM25 = 0,
+    // maka dokumen tersebut tidak relevan sama sekali (cegah false-positive pada kueri non-topik)
+    if (item.bm25 <= 0 && item.termCoverage <= 0) {
+      total = 0.0;
+    }
 
     rerankedList.push({
       chunk: item.chunk,

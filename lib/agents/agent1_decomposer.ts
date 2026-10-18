@@ -64,7 +64,10 @@ export function runAgent1TickerDecomposer(query: string, manualBankFilter?: stri
   const addedSynonyms: string[] = [];
 
   for (const [key, synonyms] of Object.entries(BANKING_SYNONYMS)) {
-    if (qLower.includes(key)) {
+    // Gunakan word boundary regex agar singkatan seperti "car" tidak keliru mencocokkan kata "cara"
+    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`\\b${escapedKey}\\b`, "i");
+    if (regex.test(query)) {
       for (const syn of synonyms) {
         if (!qLower.includes(syn) && !addedSynonyms.includes(syn)) {
           addedSynonyms.push(syn);
