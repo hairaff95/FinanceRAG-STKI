@@ -9,6 +9,12 @@ import {
   ExternalLink,
   ChevronLeft,
   ChevronRight,
+  Maximize2,
+  Minimize2,
+  FileText,
+  Copy,
+  Check,
+  X,
 } from "lucide-react";
 import { ChunkItem } from "@/lib/types";
 import { NeoDropdown, NeoDropdownOption } from "./NeoDropdown";
@@ -30,6 +36,36 @@ export const Workspace5BrankasKorpusJurnal: React.FC = () => {
     BBRI: 754,
     BMRI: 647,
   });
+
+  // State Expand & Modal Detail Chunk
+  const [expandedChunks, setExpandedChunks] = useState<{ [id: string]: boolean }>({});
+  const [selectedChunk, setSelectedChunk] = useState<ChunkItem | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const toggleExpand = (id: string) => {
+    setExpandedChunks((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleCopyText = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const getBankBadge = (kode: string) => {
+    switch (kode) {
+      case "BBCA":
+        return "bg-[#F8C646] text-black";
+      case "BBNI":
+        return "bg-[#EB4D4B] text-white";
+      case "BBRI":
+        return "bg-[#6C5CE7] text-white";
+      case "BMRI":
+        return "bg-[#9BD2FD] text-black";
+      default:
+        return "bg-[#C8E087] text-black";
+    }
+  };
 
   const fetchChunks = async (p: number, bank: string, search: string) => {
     setLoading(true);
@@ -335,34 +371,83 @@ export const Workspace5BrankasKorpusJurnal: React.FC = () => {
                   loading ? "opacity-60 pointer-events-none" : "opacity-100"
                 }`}
               >
-                {chunks.map((c) => (
-                  <div
-                    key={c.chunk_id}
-                    className="bg-[#18181b] p-5 rounded-3xl border-3 border-black shadow-[4px_4px_0px_#000000] text-xs space-y-3 flex flex-col justify-between"
-                  >
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between font-mono text-[10px]">
-                        <span className="px-2.5 py-0.5 rounded-full font-bold bg-[#F8C646] text-black border border-black">
-                          {c.metadata.kode_bank}
+                {chunks.map((c) => {
+                  const isExpanded = !!expandedChunks[c.chunk_id];
+                  return (
+                    <div
+                      key={c.chunk_id}
+                      className="bg-[#18181b] p-5 rounded-3xl border-3 border-black shadow-[4px_4px_0px_#000000] text-xs space-y-3 flex flex-col justify-between transition-all"
+                    >
+                      <div className="space-y-2.5">
+                        <div className="flex items-center justify-between font-mono text-[10px]">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full font-bold border border-black ${getBankBadge(
+                              c.metadata.kode_bank
+                            )}`}
+                          >
+                            {c.metadata.kode_bank}
+                          </span>
+                          <span className="text-neutral-400 font-semibold">Hal. {c.metadata.halaman}</span>
+                          <span className="text-neutral-500 truncate max-w-[120px]" title={c.chunk_id}>
+                            {c.chunk_id}
+                          </span>
+                        </div>
+
+                        <div
+                          className="font-display text-lg uppercase text-white tracking-wide line-clamp-1"
+                          title={c.metadata.bab}
+                        >
+                          {c.metadata.bab}
+                        </div>
+
+                        {/* Kotak Teks Korpus: Scrollable & Bebas Slicing/Potongan Awkward */}
+                        <div
+                          className={`text-neutral-300 text-[11px] leading-relaxed font-sans bg-black p-3.5 rounded-2xl border border-neutral-800 whitespace-pre-line select-text transition-all ${
+                            isExpanded ? "max-h-none h-auto" : "h-40 overflow-y-auto"
+                          }`}
+                        >
+                          {c.raw_text}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[10px] font-mono text-neutral-400 pt-2 border-t border-neutral-800">
+                        <span className="truncate max-w-[130px] text-neutral-500" title={c.metadata.sumber_file}>
+                          {c.metadata.sumber_file}
                         </span>
-                        <span className="text-neutral-400">Hal. {c.metadata.halaman}</span>
-                        <span className="text-neutral-500 truncate max-w-[110px]">{c.chunk_id}</span>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => toggleExpand(c.chunk_id)}
+                            className="px-2.5 py-1 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-neutral-700 hover:border-neutral-500 transition-colors flex items-center gap-1 font-bold text-[10px]"
+                            title={isExpanded ? "Ringkas tampilan box" : "Perluas tampilan box di kartu"}
+                          >
+                            {isExpanded ? (
+                              <>
+                                <Minimize2 className="w-2.5 h-2.5 text-[#F8C646]" />
+                                <span>Ringkas</span>
+                              </>
+                            ) : (
+                              <>
+                                <Maximize2 className="w-2.5 h-2.5 text-[#C8E087]" />
+                                <span>Perluas</span>
+                              </>
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setSelectedChunk(c)}
+                            className="p-1 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white border border-neutral-700 hover:border-neutral-500 transition-colors"
+                            title="Buka Modal Detail Dokumen Lengkap"
+                          >
+                            <FileText className="w-3.5 h-3.5 text-[#9BD2FD]" />
+                          </button>
+                        </div>
                       </div>
-
-                      <div className="font-display text-lg uppercase text-white tracking-wide truncate">
-                        {c.metadata.bab}
-                      </div>
-
-                      <p className="text-neutral-300 text-[11px] leading-relaxed line-clamp-4 font-sans bg-black p-3.5 rounded-2xl border border-neutral-800">
-                        {c.raw_text}
-                      </p>
                     </div>
-
-                    <div className="text-[10px] font-mono text-neutral-500 truncate pt-2 border-t border-neutral-800">
-                      Sumber: {c.metadata.sumber_file}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -482,6 +567,86 @@ export const Workspace5BrankasKorpusJurnal: React.FC = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DETAIL CHUNK KORPUS LENGKAP */}
+      {selectedChunk && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="bg-[#18181b] border-3 border-black rounded-3xl p-6 sm:p-7 max-w-2xl w-full shadow-[8px_8px_0px_#000000] space-y-4 max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between gap-3 border-b-2 border-neutral-800 pb-4">
+              <div>
+                <div className="flex items-center gap-2 font-mono text-xs mb-1.5 flex-wrap">
+                  <span
+                    className={`px-2.5 py-0.5 rounded-full font-bold border border-black ${getBankBadge(
+                      selectedChunk.metadata.kode_bank
+                    )}`}
+                  >
+                    {selectedChunk.metadata.kode_bank}
+                  </span>
+                  <span className="text-white font-bold">{selectedChunk.metadata.nama_bank}</span>
+                  <span className="text-neutral-400 font-semibold">· Hal. {selectedChunk.metadata.halaman}</span>
+                  <span className="text-neutral-500 text-[10px]">({selectedChunk.metadata.tahun})</span>
+                </div>
+                <h3 className="font-display text-2xl uppercase tracking-wide text-white">
+                  {selectedChunk.metadata.bab}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedChunk(null)}
+                className="w-8 h-8 rounded-full bg-white text-black font-bold flex items-center justify-center border-2 border-black hover:bg-[#EB4D4B] hover:text-white transition-colors shadow-[2px_2px_0px_#000000] shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Body: Full Chunk Content */}
+            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+              <div className="flex items-center justify-between text-[11px] font-mono text-neutral-400">
+                <span>
+                  Chunk ID: <strong className="text-white font-mono">{selectedChunk.chunk_id}</strong>
+                </span>
+                <span>
+                  Sumber: <strong className="text-white font-mono">{selectedChunk.metadata.sumber_file}</strong>
+                </span>
+              </div>
+
+              <div className="bg-black p-4 sm:p-5 rounded-2xl border border-neutral-800 text-xs sm:text-sm text-neutral-200 font-sans leading-relaxed whitespace-pre-line select-text max-h-[50vh] overflow-y-auto">
+                {selectedChunk.raw_text}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between pt-3 border-t border-neutral-800">
+              <button
+                type="button"
+                onClick={() => handleCopyText(selectedChunk.raw_text)}
+                className="px-4 py-2 rounded-full bg-[#C8E087] text-black font-mono font-bold text-xs border-2 border-black hover:bg-[#b5d56b] transition-all shadow-[2px_2px_0px_#000000] flex items-center gap-1.5"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-black" />
+                    <span>Tersalin ke Clipboard!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 text-black" />
+                    <span>Salin Teks Chunk</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedChunk(null)}
+                className="px-4 py-2 rounded-full bg-white text-black font-mono font-bold text-xs border-2 border-black hover:bg-neutral-100 transition-all shadow-[2px_2px_0px_#000000]"
+              >
+                Tutup
+              </button>
+            </div>
           </div>
         </div>
       )}
