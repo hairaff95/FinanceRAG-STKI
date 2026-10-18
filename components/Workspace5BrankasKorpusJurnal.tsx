@@ -345,6 +345,7 @@ export const Workspace5BrankasKorpusJurnal: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Cari teks potongan dokumen, rasio, atau nama bab..."
+                suppressHydrationWarning
                 className="bg-white border-2 border-black rounded-2xl px-4 py-2.5 text-xs text-black font-sans font-bold flex-1 focus:outline-none placeholder-neutral-500 shadow-[2px_2px_0px_#000000]"
               />
               <button

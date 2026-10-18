@@ -157,6 +157,7 @@ export const Workspace1MejaAnalis: React.FC = () => {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Tulis kueri laporan keuangan (Laba, CAR, NPL, CASA, Dividen)..."
+                suppressHydrationWarning
                 className="w-full h-20 min-h-[80px] bg-white text-black border-3 border-black rounded-2xl p-4 text-xs sm:text-sm font-sans font-bold placeholder-neutral-500 focus:outline-none focus:ring-0 resize-none shadow-[3px_3px_0px_#000000]"
               />
             </div>
@@ -283,6 +284,7 @@ export const Workspace1MejaAnalis: React.FC = () => {
             type="checkbox"
             checked={useOllama}
             onChange={(e) => setUseOllama(e.target.checked)}
+            suppressHydrationWarning
             className="w-4 h-4 rounded text-[#6C5CE7] focus:ring-0 cursor-pointer shrink-0 accent-[#6C5CE7]"
           />
           {useOllama && (
@@ -291,6 +293,7 @@ export const Workspace1MejaAnalis: React.FC = () => {
               value={ollamaModel}
               onChange={(e) => setOllamaModel(e.target.value)}
               placeholder="llama3"
+              suppressHydrationWarning
               className="bg-neutral-800 border border-neutral-600 px-2.5 h-6 rounded-full text-[11px] text-white w-20 font-mono text-center focus:outline-none focus:border-[#9BD2FD]"
             />
           )}

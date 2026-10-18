@@ -79,6 +79,7 @@ export const Workspace2LaboratoriumIR: React.FC = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Masukkan kueri pengujian STKI..."
+            suppressHydrationWarning
             className="flex-1 bg-white text-black border-3 border-black rounded-2xl px-5 py-3 text-sm font-sans font-bold placeholder-neutral-500 focus:outline-none shadow-[3px_3px_0px_#000000]"
           />
 
