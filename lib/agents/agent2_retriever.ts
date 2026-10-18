@@ -15,7 +15,8 @@ export function runAgent2HybridRetriever(
   const queryTokens = tokenize(expandedQuery);
 
   // 1. Pencarian Leksikal Okapi BM25 ( Robertson & Zaragoza, 2009 )
-  const bm25Results = bm25Engine.search(queryTokens, targetBank, topK);
+  const searchDepth = Math.max(topK, 35);
+  const bm25Results = bm25Engine.search(queryTokens, targetBank, searchDepth);
   const topLexical: CandidateRank[] = bm25Results.map((r) => ({
     chunk_id: r.chunk_id,
     rank: r.rank,
@@ -23,7 +24,7 @@ export function runAgent2HybridRetriever(
   }));
 
   // 2. Pencarian Semantik Ruang Laten LSI ( Deerwester et al., 1990 )
-  const lsiResults = lsiEngine.search(queryTokens, targetBank, topK);
+  const lsiResults = lsiEngine.search(queryTokens, targetBank, searchDepth);
   const topLatent: CandidateRank[] = lsiResults.map((r) => ({
     chunk_id: r.chunk_id,
     rank: r.rank,
@@ -31,7 +32,7 @@ export function runAgent2HybridRetriever(
   }));
 
   // 3. Fusi Peringkat Hibrida RRF k=60 ( Cormack et al., 2009 )
-  const topRRF = reciprocalRankFusion(topLexical, topLatent, 60, topK);
+  const topRRF = reciprocalRankFusion(topLexical, topLatent, 60, Math.max(topK, 30));
 
   const executionTimeMs = Number((performance.now() - startTime).toFixed(2));
   const log = `[Agent 2: Hybrid Retriever] Leksikal BM25: ${topLexical.length} kandidat | Semantik LSI: ${topLatent.length} kandidat | Fusi RRF (k=60): ${topRRF.length} kandidat`;

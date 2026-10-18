@@ -46,11 +46,15 @@ export function rerankFinancialCandidates(
 
     // F4: Query Term Coverage (Berapa persen kata kueri yang muncul di teks chunk)
     const chunkTokens = new Set(tokenize(chunk.text));
+    const uniqueQueryTokens = Array.from(new Set(queryTokens));
     let matchedTerms = 0;
-    for (const qt of queryTokens) {
+    for (const qt of uniqueQueryTokens) {
       if (chunkTokens.has(qt)) matchedTerms++;
     }
-    const termCoverage = queryTokens.length > 0 ? matchedTerms / queryTokens.length : 0;
+    // Normalisasi: mencocokkan 5 istilah kunci kueri sudah dianggap relevansi term maksimal (1.0)
+    const termCoverage = uniqueQueryTokens.length > 0
+      ? Math.min(1.0, matchedTerms / Math.min(uniqueQueryTokens.length, 5))
+      : 0;
 
     // F5: Financial Numeric & Ratio Density (FinQA)
     // Hitung kemunculan simbol %, bps, triliun, miliar, rp, serta digit angka
@@ -65,7 +69,15 @@ export function rerankFinancialCandidates(
     const babLower = chunk.metadata.bab.toLowerCase();
     if (babLower.includes("ikhtisar") || babLower.includes("rasio")) {
       priorityBoost += 0.6;
-    } else if (babLower.includes("md&a") || babLower.includes("analisis") || babLower.includes("pembahasan")) {
+    } else if (
+      babLower.includes("md&a") ||
+      babLower.includes("analisis") ||
+      babLower.includes("pembahasan") ||
+      babLower.includes("manajemen") ||
+      babLower.includes("direksi") ||
+      babLower.includes("komisaris") ||
+      babLower.includes("profil")
+    ) {
       priorityBoost += 0.4;
     }
     if (options.targetBank && chunk.metadata.kode_bank === options.targetBank) {

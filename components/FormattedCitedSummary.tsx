@@ -125,7 +125,23 @@ export const FormattedCitedSummary: React.FC<FormattedCitedSummaryProps> = ({ co
       continue;
     }
 
-    // 5. Quoted financial text (starts with " or “)
+    // 5. Bullet list item (starts with • or - or *)
+    if (trimmed.startsWith("•") || /^[*-]\s+/.test(trimmed)) {
+      const bulletContent = trimmed.replace(/^[•*\-]\s+/, "");
+      elements.push(
+        <div
+          key={`bullet-${i}`}
+          className="p-3.5 sm:p-4 bg-white rounded-2xl border-2 border-black shadow-[3px_3px_0px_#000000] my-2 text-xs sm:text-sm font-sans font-medium text-neutral-900 leading-relaxed flex items-start gap-3 transition-transform hover:-translate-y-0.5"
+        >
+          <span className="w-2.5 h-2.5 rounded-full bg-[#F8C646] border-2 border-black shrink-0 mt-1" />
+          <div className="flex-1">{renderInline(bulletContent)}</div>
+        </div>
+      );
+      i++;
+      continue;
+    }
+
+    // 6. Quoted financial text (starts with " or “)
     if (trimmed.startsWith('"') || trimmed.startsWith('“')) {
       elements.push(
         <div
@@ -139,7 +155,7 @@ export const FormattedCitedSummary: React.FC<FormattedCitedSummaryProps> = ({ co
       continue;
     }
 
-    // 6. Regular paragraph
+    // 7. Regular paragraph
     elements.push(
       <p key={`p-${i}`} className="leading-relaxed text-sm sm:text-base font-sans text-neutral-900 my-2">
         {renderInline(trimmed)}
