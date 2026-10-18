@@ -1,0 +1,47 @@
+# ==============================================================================
+# GITIGNORE: FIN-CRAG (Production & Academic Standard)
+# ==============================================================================
+
+# 1. Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# 2. Next.js Build Output & Cache
+.next/
+out/
+build/
+dist/
+.vercel/
+*.tsbuildinfo
+
+# 3. Environment Variables & Secret Credentials (CRITICAL SECURITY)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+
+# 4. Large Data Files & Local Databases (> 10MB)
+data_pdf/
+vector_db/
+*.pkl
+*.sqlite3
+
+# 5. Python Virtual Environment & Bytecode
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 6. Operating System Artifacts
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
